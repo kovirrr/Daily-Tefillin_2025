@@ -64,10 +64,10 @@ def detect_eyes(image):
 
 def detect_face(image): #helper func for face_features
     imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    pts = face_detector.Find_Points(image, imgRGB)  # Find points on the face
+    pts = face_detector.Find_Points(image, imgRGB)
     if pts == []:
-        return None  # No points found
-    return pts  # Return the detected points on the face
+        return None 
+    return pts
 
 def detect_hairline(image):
     model = YOLO(
@@ -79,7 +79,6 @@ def detect_hairline(image):
     if r.masks is None or len(r.masks.xy) == 0:
         return None
 
-    # get confidences for each detected box
     confs = r.boxes.conf.cpu().numpy()
     # pick the index of the highest-confidence detection
     best_i = int(confs.argmax())
@@ -116,8 +115,8 @@ def lowest_hairline_point(eye_cords, forehead_cords): #helper func for get_lowes
     print("Eye Coordinates:", eye_cords)
     if not eye_cords[0] or not eye_cords[1] or not forehead_cords:
         return None
-    left_x = eye_cords[0][1]#[1]  # right-most x value of left eye
-    right_x = eye_cords[1][0]#[1]  # left-most x value of right eye
+    left_x = eye_cords[0][1]  # right-most x value of left eye
+    right_x = eye_cords[1][0]  # left-most x value of right eye
 
     imp_points = []
     for i in range(len(forehead_cords)): #only take points between eyes. we don't care about side hair, and this accounts for widows peak
@@ -251,17 +250,16 @@ def calc_hairline(img):
     if compare_poses(detect_head_pose(img), ref_pos) == []: #they are in range
         feat = face_features(img) #[[chin x,y],[nose x,y]]
         if feat != [None, None]:
-            return feat[1][1] - ref_ratio*(feat[0][1]-feat[1][1])#hairpoint (nose - ratio*chin-nose)
+            return feat[1][1] - ref_ratio*(feat[0][1]-feat[1][1])#FLOAT; hairpoint (nose - ratio*chin-nose)
         return "Can't detect chin + nose"
     return "Head not in position"
 
 
-def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="Point"):
+def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="Point"): #testing purposes only
     if point is None or len(point) < 2:
         print("Invalid point provided.")
         return
 
-    # Ensure integer coordinates
     x = int(point[0])
     y = int(point[1])
 
@@ -273,7 +271,6 @@ def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="
 
 def tef_good(image, ref=""): #input cv2.imread(frames) of the pic and the referecne pic
     eye_cords = detect_eyes(image) #the two inner corners of the eyes
-    #hairline_point = get_lowest_hairline_point(image) #lowest hairline point
 
     hairline_point = calc_hairline(img)
     tef_cords = detect_tefillin(image) #4 points of tefillin box
@@ -282,9 +279,11 @@ def tef_good(image, ref=""): #input cv2.imread(frames) of the pic and the refere
     
 
 
-    if not eye_cords:
+    if not eye_cords or type(eye_cords) is not list:
         return "No eyes detected"
-    if not tef_cords:
+    if not hairline_point or type(hairline_point) is str:
+        return hairline_point #error message
+    if not tef_cords or type(tef_cords) is not list:
         return "No tefillin detected"
     teffilin_point = [((tef_cords[0][0] + tef_cords[2][0]) / 2), tef_cords[1][1]] #lowest point of box (y), in the middle (x)
     
@@ -302,9 +301,6 @@ def tef_good(image, ref=""): #input cv2.imread(frames) of the pic and the refere
 #========= USAGE ===========
 
 initialize(cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/kovi.JPG"))
-
-print("passed initialization")
-
 img = cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG")
-print("readed")
+
 print(tef_good(img))
