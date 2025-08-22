@@ -7,7 +7,7 @@ import time
 
 
 #========== VARIABLES =============
-face_detector = LM.Face()#detects face with variables
+face_detector = LM.Face()#detects face with variables 
 
 #========== FUNCTIONS =============
 def annotate_and_show(image, cords,
