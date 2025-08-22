@@ -81,5 +81,6 @@ def detect_hairline_from_image(model_path, image_path):
 
 # Usage
 model_path = '/Users/koviressler/Desktop/DailyTefillin/hairline_detection/hairlineAI.pt'
-detect_hairline_realtime(model_path)
-#detect_hairline_from_image(model_path, "/Users/koviressler/Desktop/DailyTefillin/people/staddy.JPG")
+
+#detect_hairline_realtime(model_path)
+detect_hairline_from_image(model_path, "/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG")

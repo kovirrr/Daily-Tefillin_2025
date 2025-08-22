@@ -8,7 +8,6 @@ import time
 
 #========== VARIABLES =============
 face_detector = LM.Face()#detects face with variables 
-
 #========== FUNCTIONS =============
 def annotate_and_show(image, cords,
                       window_name='Result',
@@ -61,6 +60,7 @@ def detect_eyes(image):
         return None
     
     return [left_eye_points[1], right_eye_points[0]] # Return only the inner corners of each eye
+    #format of each is [id, x, y]
 
 def detect_face(image): #helper func for face_features
     imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -111,7 +111,7 @@ def detect_tefillin(image):
         [x2, y2],
     ]
 
-def lowest_hairline_point(eye_cords, forehead_cords): #helper func for get_lowest_hairline_point
+def lowest_hairline_point(eye_cords, forehead_cords):
     print("Eye Coordinates:", eye_cords)
     if not eye_cords[0] or not eye_cords[1] or not forehead_cords:
         return None
@@ -250,7 +250,8 @@ def calc_hairline(img):
     if compare_poses(detect_head_pose(img), ref_pos) == []: #they are in range
         feat = face_features(img) #[[chin x,y],[nose x,y]]
         if feat != [None, None]:
-            return feat[1][1] - ref_ratio*(feat[0][1]-feat[1][1])#FLOAT; hairpoint (nose - ratio*chin-nose)
+            return feat[1][1] - ref_ratio*(feat[0][1]-feat[1][1])#FLOAT of y value
+            #hairpoint (nose - ratio*chin-nose)
         return "Can't detect chin + nose"
     return "Head not in position"
 
@@ -269,15 +270,12 @@ def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def tef_good(image, ref=""): #input cv2.imread(frames) of the pic and the referecne pic
+def tef_good(image, ref="", debug=False): #input cv2.imread(frames) of the pic and the referecne pic
     eye_cords = detect_eyes(image) #the two inner corners of the eyes
-
     hairline_point = calc_hairline(img)
     tef_cords = detect_tefillin(image) #4 points of tefillin box
     if ref=="" and hairline_point is None: #if no reference image, use the current image
         return "Need Reference Image—Hairline not detected"
-    
-
 
     if not eye_cords or type(eye_cords) is not list:
         return "No eyes detected"
@@ -286,12 +284,29 @@ def tef_good(image, ref=""): #input cv2.imread(frames) of the pic and the refere
     if not tef_cords or type(tef_cords) is not list:
         return "No tefillin detected"
     teffilin_point = [((tef_cords[0][0] + tef_cords[2][0]) / 2), tef_cords[1][1]] #lowest point of box (y), in the middle (x)
-    
+
     print("Eye Coordinates:", eye_cords)
     print("Hairline Point:", hairline_point)
     print("Tefillin Point:", teffilin_point)
+
+    if debug:
+        img_copy = image.copy()
+        # Draw tefillin box corners (blue)
+        for pt in tef_cords:
+            cv2.circle(img_copy, (int(pt[0]), int(pt[1])), 5, (255, 0, 0), -1)
+        # Draw teffilin_point (center bottom of box, cyan)
+        cv2.circle(img_copy, (int(teffilin_point[0]), int(teffilin_point[1])), 7, (255, 255, 0), -1)
+        # Draw eye points (green)
+        for pt in eye_cords:
+            cv2.circle(img_copy, (int(pt[1]), int(pt[2])), 7, (0, 255, 0), -1)
+        # Draw hairline as a horizontal line (red)
+        cv2.line(img_copy, (0, int(hairline_point)), (img_copy.shape[1], int(hairline_point)), (0, 0, 255), 2)
+        cv2.imshow("Debug Tefillin Placement", img_copy)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
     if teffilin_point[0] > eye_cords[0][1] and teffilin_point[0] < eye_cords[1][1]: #teffilin is between eyes
-        if teffilin_point[1] < hairline_point[1]: #teffilin is below hairline (y cords are reversed)
+        if teffilin_point[1] < hairline_point: #teffilin is below hairline (y cords are reversed)
             return True
     return False #teffilin is not in the right place 
 
@@ -300,7 +315,7 @@ def tef_good(image, ref=""): #input cv2.imread(frames) of the pic and the refere
 
 #========= USAGE ===========
 
-initialize(cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/kovi.JPG"))
+initialize(cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG"))
 img = cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG")
 
-print(tef_good(img))
+print(tef_good(img, debug=True))
