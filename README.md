@@ -29,3 +29,7 @@ python -m pip install -r requirements.txt
 
 You may need to select intrepreter to the venv:
 cmd+shift+p --> select interpreter --> .venv
+
+### TO-DO
+
+fix calc_hairline function (it's too high on the zacky image)
