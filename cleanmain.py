@@ -9,45 +9,6 @@ import time
 #========== VARIABLES =============
 face_detector = LM.Face()#detects face with variables 
 #========== FUNCTIONS =============
-def annotate_and_show(image, cords,
-                      window_name='Result',
-                      dot_color=(0, 255, 0),
-                      dot_radius=3):
-
-    img_copy = image.copy()
-    pts_to_draw = []
-
-    if cords:
-        # detect nested-2D list: first element is list-of-points
-        if (isinstance(cords, (list, tuple))
-            and len(cords) > 0
-            and isinstance(cords[0], (list, tuple))
-            and len(cords[0]) > 0
-            and isinstance(cords[0][0], (list, tuple))):
-            # cords like [ [ [x,y],… ], [ [x,y],… ] ]
-            for subgroup in cords:
-                if subgroup:
-                    for pt in subgroup:
-                        if pt and len(pt) >= 2:
-                            pts_to_draw.append(pt)
-        else:
-            # assume flat: [ [x,y], [x,y], … ]
-            for pt in cords:
-                if pt and len(pt) >= 2:
-                    pts_to_draw.append(pt)
-
-    # draw all points
-    for pt in pts_to_draw:
-        # ensure numeric
-        x = int(float(pt[0]))
-        y = int(float(pt[1]))
-        cv2.circle(img_copy, (x, y), dot_radius, dot_color, thickness=-1)
-
-    # display
-    cv2.imshow(window_name, img_copy)
-
-    return img_copy
-
 def detect_eyes(image):
     imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
@@ -225,8 +186,8 @@ def distance(point1, point2): #gets dis between 2 points - list of [x,y,...]
     return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
 
-def initialize(ref_image): #ref_pos, ref_ratio
-    global ref_pos, ref_ratio
+def initialize(ref_image): #ref_pos
+    global ref_pos, ref_bottom_dis, ref_top_dis
     ref_hairline = detect_hairline(ref_image)
     ref_eyes = detect_eyes(ref_image)
     ref_hairpoint = lowest_hairline_point(ref_eyes, ref_hairline)
@@ -241,15 +202,15 @@ def initialize(ref_image): #ref_pos, ref_ratio
     ref_bottom_dis = distance(ref_features[0][1:3], ref_features[1][1:3]) #distance from chin to nose
     ref_top_dis = distance(ref_features[1][1:3], ref_hairpoint) #distance from nose to forehead point
 
-    #global #2
-    ref_ratio = ref_top_dis / ref_bottom_dis
 
 def calc_hairline(img):
     if compare_poses(detect_head_pose(img), ref_pos) == []: #they are in range
-        feat = face_features(img) #[[chin x,y],[nose x,y]]
+        feat = face_features(img) #[[chin id,x,y],[nose id,x,y]]
         if feat != [None, None]:
-            return feat[1][1] - ref_ratio*(feat[0][1]-feat[1][1])#FLOAT of y value
+            #return feat[1][1] - ref_ratio*(abs(feat[1][1]-feat[0][1]))#FLOAT of y value
             #hairpoint (nose - ratio*chin-nose)
+            bottom_dis = distance(feat[0][1:3], feat[1][1:3])
+            return feat[1][2] - (ref_top_dis*bottom_dis/ref_bottom_dis)
         return "Can't detect chin + nose"
     return "Head not in position"
 
@@ -268,12 +229,12 @@ def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def tef_good(image, ref="", debug=False): #input cv2.imread(frames) of the pic and the referecne pic
+def tef_good(image, ref, debug=False): #input cv2.imread(frames) of the pic and the referecne pic
     eye_cords = detect_eyes(image) #the two inner corners of the eyes
     hairline_point = calc_hairline(image)
     tef_cords = detect_tefillin(image) #4 points of tefillin box
-    if ref=="":
-        return "Need Reference Image—Hairline not detected"
+    if ref is None:
+        return "Need Reference Image"
     if not eye_cords or type(eye_cords) is not list:
         return "No eyes detected"
     if not hairline_point or type(hairline_point) is str:
@@ -281,10 +242,6 @@ def tef_good(image, ref="", debug=False): #input cv2.imread(frames) of the pic a
     if not tef_cords or type(tef_cords) is not list:
         return "No tefillin detected"
     teffilin_point = [((tef_cords[0][0] + tef_cords[2][0]) / 2), tef_cords[1][1]] #lowest point of box (y), in the middle (x)
-
-    print("Eye Coordinates:", eye_cords)
-    print("Hairline Point:", hairline_point)
-    print("Tefillin Point:", teffilin_point)
 
     if debug:
         img_copy = image.copy()
@@ -316,7 +273,12 @@ def tef_good(image, ref="", debug=False): #input cv2.imread(frames) of the pic a
 
 #========= USAGE ===========
 
-initialize(cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG"))
-img = cv2.imread("/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG")
+p = "/Users/koviressler/Daily-Tefillin_2025/tefillin_detection/finallyTef/train/images/17dae0c8-139a-4c0d-aa5e-c65f815e374c 2.JPG"
+z = "/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG"
 
-print(tef_good(img, debug=True))
+initialize(cv2.imread(p))
+img = cv2.imread(p)
+
+
+
+print(tef_good(img, img, debug=True))
