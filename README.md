@@ -32,4 +32,6 @@ cmd+shift+p --> select interpreter --> .venv
 
 ### TO-DO
 
-fix calc_hairline function (it's too high on the zacky image)
+Clean up code
+Make it a one-use function
+Turn into API
