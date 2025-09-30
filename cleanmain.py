@@ -224,8 +224,6 @@ def compare_poses(current_pose, reference_pose, threshold=4.0): #returns the big
 def distance(point1, point2): #gets dis between 2 points - list of [x,y,...]
     return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-def ratio(b,t):
-    return t/b
 
 def initialize(ref_image): #ref_pos, ref_ratio
     global ref_pos, ref_ratio
@@ -244,7 +242,7 @@ def initialize(ref_image): #ref_pos, ref_ratio
     ref_top_dis = distance(ref_features[1][1:3], ref_hairpoint) #distance from nose to forehead point
 
     #global #2
-    ref_ratio = ratio(ref_bottom_dis, ref_top_dis)
+    ref_ratio = ref_top_dis / ref_bottom_dis
 
 def calc_hairline(img):
     if compare_poses(detect_head_pose(img), ref_pos) == []: #they are in range
@@ -272,11 +270,10 @@ def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="
 
 def tef_good(image, ref="", debug=False): #input cv2.imread(frames) of the pic and the referecne pic
     eye_cords = detect_eyes(image) #the two inner corners of the eyes
-    hairline_point = calc_hairline(img)
+    hairline_point = calc_hairline(image)
     tef_cords = detect_tefillin(image) #4 points of tefillin box
-    if ref=="" and hairline_point is None: #if no reference image, use the current image
+    if ref=="":
         return "Need Reference Image—Hairline not detected"
-
     if not eye_cords or type(eye_cords) is not list:
         return "No eyes detected"
     if not hairline_point or type(hairline_point) is str:
@@ -301,6 +298,10 @@ def tef_good(image, ref="", debug=False): #input cv2.imread(frames) of the pic a
             cv2.circle(img_copy, (int(pt[1]), int(pt[2])), 7, (0, 255, 0), -1)
         # Draw hairline as a horizontal line (red)
         cv2.line(img_copy, (0, int(hairline_point)), (img_copy.shape[1], int(hairline_point)), (0, 0, 255), 2)
+        chin_nose = face_features(image)
+        if chin_nose and chin_nose[0] and chin_nose[1]:
+            cv2.circle(img_copy, (int(chin_nose[0][1]), int(chin_nose[0][2])), 7, (255, 0, 255), -1) # Chin (magenta)
+            cv2.circle(img_copy, (int(chin_nose[1][1]), int(chin_nose[1][2])), 7, (0, 255, 255), -1) # Nose (yellow)
         cv2.imshow("Debug Tefillin Placement", img_copy)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
