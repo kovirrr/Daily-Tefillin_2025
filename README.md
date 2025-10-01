@@ -32,6 +32,8 @@ cmd+shift+p --> select interpreter --> .venv
 
 ### TO-DO
 
+change tef_good function to allow people in wrong orientations, but warn that they are far off and it may be inaccurate
+Add option to manually add hairline
 Clean up code
 Make it a one-use function
-Turn into API
+Turn into functional API
