@@ -35,6 +35,8 @@ cmd+shift+p --> select interpreter --> .venv
 fix calc_hairline (still too high)
 change tef_good function to allow people in wrong orientations, but warn that they are far off and it may be inaccurate
 Add option to manually add hairline
-Clean up code
+
+MAYBE: add a warning function for reference photos (only) if their yaw value is too far left or right
+
 Make it a one-use function
 Turn into functional API

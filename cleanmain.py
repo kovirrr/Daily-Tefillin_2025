@@ -11,6 +11,9 @@ face_detector = LM.Face()#detects face with variables
 
 
 #========== FUNCTIONS =============
+def send_warning(warning): 
+    print(warning) #placeholder; will alert the user their head is out of position
+
 def read(image_path):
     return cv2.imread(image_path)
 
@@ -77,7 +80,6 @@ def detect_tefillin(image):
     ]
 
 def lowest_hairline_point(eye_cords, forehead_cords):
-    print("Eye Coordinates:", eye_cords)
     if not eye_cords[0] or not eye_cords[1] or not forehead_cords:
         return None
     left_x = eye_cords[0][1]  # right-most x value of left eye
@@ -206,29 +208,15 @@ def initialize(ref_image): #ref_pos
 
 def calc_hairline(img):
     pose_diff = compare_poses(detect_head_pose(img), ref_pos)
-    if pose_diff == []: #they are in range
-        feat = face_features(img) #[[chin id,x,y],[nose id,x,y]]
-        if feat != [None, None]:
-            bottom_dis = distance(feat[0][1:3], feat[1][1:3])
-            return feat[1][2] - (bottom_dis * ref_top_dis/ref_bottom_dis)
-        return "Can't detect chin + nose"
-    print(pose_diff)
-    return "Head not in position"
+    if pose_diff != []: #position is out of range
+        send_warning(pose_diff)
+    
+    feat = face_features(img) #[[chin id,x,y],[nose id,x,y]]
+    if feat != [None, None]:
+        bottom_dis = distance(feat[0][1:3], feat[1][1:3])
+        return feat[1][2] - (bottom_dis * ref_top_dis/ref_bottom_dis)
+    return "Can't detect chin + nose"
 
-
-def draw_point_on_image(image, point, color=(0, 0, 255), radius=5, window_name="Point"): #testing purposes only
-    if point is None or len(point) < 2:
-        print("Invalid point provided.")
-        return
-
-    x = int(point[0])
-    y = int(point[1])
-
-    img_copy = image.copy()
-    cv2.circle(img_copy, (x, y), radius, color, thickness=-1)
-    cv2.imshow(window_name, img_copy)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
 def tef_good(image, debug=False): #input cv2.imread(frames) of the pic
     if not initialized:
@@ -293,11 +281,11 @@ good = read("/Users/koviressler/Daily-Tefillin_2025/people/kovi_good.JPG")
 initialize(blank)
 
 
-print(tef_good(left, debug=True))
-print(tef_good(right, debug=True))
-print(tef_good(low, debug=True))
+# print(tef_good(left, debug=True))
+# print(tef_good(right, debug=True))
+# print(tef_good(low, debug=True))
 
 
-initialize(blank2)
+#initialize(blank2)
 
 print(tef_good(good, debug=True))
