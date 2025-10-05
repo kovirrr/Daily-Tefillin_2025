@@ -59,7 +59,6 @@ def detect_tefillin(image):
         'tefillin_detection/runs/detect/train6/weights/best.pt'
     )
     results = model(image)  # ultralytics Results object
-    print("RESULTS\t: ", results)
     r = results[0]          # pull out coordinates from object
     confs = r.boxes.conf.cpu().numpy()
     if len(confs) == 0:
@@ -114,16 +113,14 @@ def get_lowest_hairline_point(image):
     
     eye_coordinates = detect_eyes(image)
     hairline_points = detect_hairline(image)
-
-    # Find the lowest hairline point
     lowest_point = lowest_hairline_point(eye_coordinates, hairline_points)
-    return lowest_point  # Return the lowest hairline point found in the image
+    return lowest_point
 
 def face_features(image): #put in a cv2.imread(frame)
     pnts = detect_face(image)
     if pnts:
         return [pnts[152], pnts[2]]#chin, nose tip
-    return [None, None]  # Return None if no points are found
+    return [None, None] 
 
 def detect_head_pose(image):
     face_landmarks = detect_face(image)
@@ -167,7 +164,7 @@ def detect_head_pose(image):
 
     return euler_angles #returns a list of 3 lists
 
-def compare_poses(current_pose, reference_pose, threshold=4.0): #returns the biggest difference in head position (how to fix it)
+def compare_poses(current_pose, reference_pose, threshold=4.0): #4 is best
     pitch_diff = current_pose[0][0] - reference_pose[0][0] #left + right
     yaw_diff = current_pose[1][0] - reference_pose[1][0]
     roll_diff = current_pose[2][0] - reference_pose[2][0]
@@ -181,13 +178,13 @@ def compare_poses(current_pose, reference_pose, threshold=4.0): #returns the big
     # Sort guidance by magnitude of difference
     guidance.sort(key=lambda x: x[1], reverse=True)
     
-    if abs(yaw_diff) > threshold:
+    if abs(yaw_diff) > threshold: #most important, that's why insert
         guidance.insert(0, ("Turn " + ("down" if yaw_diff > 0 else "up"), abs(yaw_diff)))
 
     return guidance
 
-def distance(point1, point2): #gets dis between 2 points - list of [x,y,...]
-    return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+def distance(point1, point2): #y dist (not overall)
+    return abs(point1[1]-point2[1])
 
 
 def initialize(ref_image): #ref_pos
@@ -214,7 +211,7 @@ def calc_hairline(img):
         feat = face_features(img) #[[chin id,x,y],[nose id,x,y]]
         if feat != [None, None]:
             bottom_dis = distance(feat[0][1:3], feat[1][1:3])
-            return feat[1][2] - (ref_top_dis*bottom_dis/ref_bottom_dis)
+            return feat[1][2] - (bottom_dis * ref_top_dis/ref_bottom_dis)
         return "Can't detect chin + nose"
     print(pose_diff)
     return "Head not in position"

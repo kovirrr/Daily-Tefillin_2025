@@ -32,6 +32,7 @@ cmd+shift+p --> select interpreter --> .venv
 
 ### TO-DO
 
+fix calc_hairline (still too high)
 change tef_good function to allow people in wrong orientations, but warn that they are far off and it may be inaccurate
 Add option to manually add hairline
 Clean up code
