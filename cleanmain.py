@@ -8,6 +8,8 @@ import time
 
 #========== VARIABLES =============
 face_detector = LM.Face()#detects face with variables 
+
+
 #========== FUNCTIONS =============
 def read(image_path):
     return cv2.imread(image_path)
@@ -38,7 +40,7 @@ def detect_hairline(image):
         '/Users/koviressler/Desktop/DailyTefillin/'
         'hairline_detection/hairlineAI.pt'
     )
-    results = model(image)  # ultralytics Results object
+    results = model(image)
     r = results[0]
     if r.masks is None or len(r.masks.xy) == 0:
         return None
@@ -298,7 +300,7 @@ initialize(blank)
 
 # print(tef_good(left, ref=blank, debug=True))
 # print(tef_good(right, ref=blank, debug=True))
-#print(tef_good(low, debug=True))
+# print(tef_good(low, debug=True))
 initialize(blank2)
 
 print(tef_good(good, debug=True))
