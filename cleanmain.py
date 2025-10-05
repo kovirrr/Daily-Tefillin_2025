@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import detection_code as LM #local file
-import time
 
 
 #========== VARIABLES =============
@@ -60,7 +59,8 @@ def detect_tefillin(image):
         'tefillin_detection/runs/detect/train6/weights/best.pt'
     )
     results = model(image)  # ultralytics Results object
-    r = results[0]          # single-image batch
+    print("RESULTS\t: ", results)
+    r = results[0]          # pull out coordinates from object
     confs = r.boxes.conf.cpu().numpy()
     if len(confs) == 0:
         return []
@@ -69,7 +69,6 @@ def detect_tefillin(image):
     best_i = int(confs.argmax())
     x1, y1, x2, y2 = r.boxes.xyxy[best_i].cpu().numpy()
 
-    # return its four corners
     return [
         [x1, y1],
         [x1, y2],
