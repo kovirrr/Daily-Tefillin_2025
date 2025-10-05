@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import detection_code as LM #local file
+import time
 
 
 #========== VARIABLES =============
@@ -195,7 +196,6 @@ def initialize(ref_image): #ref_pos
     ref_hairpoint = lowest_hairline_point(ref_eyes, ref_hairline)
     ref_features = face_features(ref_image) #0 = chin, 1 = nose
 
-    #global #1
     ref_pos = detect_head_pose(ref_image)
 
     if ref_pos is None or ref_features is None:
@@ -203,7 +203,6 @@ def initialize(ref_image): #ref_pos
     
     ref_bottom_dis = distance(ref_features[0][1:3], ref_features[1][1:3]) #distance from chin to nose
     ref_top_dis = distance(ref_features[1][1:3], ref_hairpoint) #distance from nose to forehead point
-
 
 def calc_hairline(img):
     pose_diff = compare_poses(detect_head_pose(img), ref_pos)
@@ -294,9 +293,11 @@ good = read("/Users/koviressler/Daily-Tefillin_2025/people/kovi_good.JPG")
 initialize(blank)
 
 
-# print(tef_good(left, ref=blank, debug=True))
-# print(tef_good(right, ref=blank, debug=True))
-# print(tef_good(low, debug=True))
+print(tef_good(left, debug=True))
+print(tef_good(right, debug=True))
+print(tef_good(low, debug=True))
+
+
 initialize(blank2)
 
 print(tef_good(good, debug=True))
