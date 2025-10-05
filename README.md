@@ -32,9 +32,5 @@ cmd+shift+p --> select interpreter --> .venv
 
 ### TO-DO
 
-Add option to manually add hairline
-
 MAYBE: add a warning function for reference photos (only) if their yaw value is too far left or right
-
-Make it a one-use function
 Turn into functional API

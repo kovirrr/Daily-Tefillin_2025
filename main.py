@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import detection_code as LM #local file
-import time
 
 
 #========== VARIABLES =============
@@ -112,13 +111,6 @@ def lowest_hairline_point(eye_cords, forehead_cords):
     lowest_point = max(imp_points, key=lambda p: p[1])
     return lowest_point  # Return the lowest point on the hairline between the eyes + the artifical point if needed
 
-def get_lowest_hairline_point(image):
-    
-    eye_coordinates = detect_eyes(image)
-    hairline_points = detect_hairline(image)
-    lowest_point = lowest_hairline_point(eye_coordinates, hairline_points)
-    return lowest_point
-
 def face_features(image): #put in a cv2.imread(frame)
     pnts = detect_face(image)
     if pnts:
@@ -190,12 +182,16 @@ def distance(point1, point2): #y dist (not overall)
     return abs(point1[1]-point2[1])
 
 
-def initialize(ref_image): #ref_pos
+def initialize(ref_image, manual_hairline=False, manual_value=0): #ref_pos
     global ref_pos, ref_bottom_dis, ref_top_dis, initialized
     initialized = True
-    ref_hairline = detect_hairline(ref_image)
-    ref_eyes = detect_eyes(ref_image)
-    ref_hairpoint = lowest_hairline_point(ref_eyes, ref_hairline)
+
+    if manual_hairline:
+        ref_hairpoint = [0, manual_value]
+    else: #auto-detect
+        ref_hairline = detect_hairline(ref_image)
+        ref_eyes = detect_eyes(ref_image)
+        ref_hairpoint = lowest_hairline_point(ref_eyes, ref_hairline)
     ref_features = face_features(ref_image) #0 = chin, 1 = nose
 
     ref_pos = detect_head_pose(ref_image)
@@ -218,7 +214,7 @@ def calc_hairline(img):
     return "Can't detect chin + nose"
 
 
-def tef_good(image, debug=False): #input cv2.imread(frames) of the pic
+def tef_good(image, debug=False): #input read(frames) of the pic
     if not initialized:
         return [False, "Need reference image"]
     eye_cords = detect_eyes(image) #the two inner corners of the eyes
@@ -265,8 +261,8 @@ def tef_good(image, debug=False): #input cv2.imread(frames) of the pic
 
 #========= USAGE ===========
 
-p = "/Users/koviressler/Daily-Tefillin_2025/tefillin_detection/finallyTef/train/images/17dae0c8-139a-4c0d-aa5e-c65f815e374c 2.JPG"
-z = "/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG"
+p = read("/Users/koviressler/Daily-Tefillin_2025/tefillin_detection/finallyTef/train/images/17dae0c8-139a-4c0d-aa5e-c65f815e374c 2.JPG")
+z = read("/Users/koviressler/Desktop/DailyTefillin/people/zacky.JPG")
 
 #kovi testing
 blank = read("/Users/koviressler/Daily-Tefillin_2025/people/kovi_blank.JPG")
@@ -278,14 +274,17 @@ right = read("/Users/koviressler/Daily-Tefillin_2025/people/kovi_right.JPG")
 low = read("/Users/koviressler/Daily-Tefillin_2025/people/kovi_low.JPG")
 good = read("/Users/koviressler/Daily-Tefillin_2025/people/kovi_good.JPG")
 
+
+initialize(z)
+print(tef_good(z, debug=True))
+
 initialize(blank)
 
+print(tef_good(left, debug=True))
+print(tef_good(right, debug=True))
+print(tef_good(low, debug=True))
 
-# print(tef_good(left, debug=True))
-# print(tef_good(right, debug=True))
-# print(tef_good(low, debug=True))
 
-
-#initialize(blank2)
+initialize(blank2, manual_hairline=True, manual_value=1550)
 
 print(tef_good(good, debug=True))
