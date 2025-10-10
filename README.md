@@ -44,5 +44,7 @@ cmd+shift+p --> select interpreter --> .venv
 
 ### TO-DO
 
+improve head positioning code. Apparently it just assumes
+
 MAYBE: add a warning function for reference photos (only) if their yaw value is too far left or right
 Turn into functional API
