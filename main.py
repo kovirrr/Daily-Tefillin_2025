@@ -214,7 +214,7 @@ def calc_hairline(img):
     return "Can't detect chin + nose"
 
 
-def tef_good(image): #input read(frames) of the pic
+def tef_good(image, debug=False): #input read(frames) of the pic
     if not initialized:
         return [False, "Need reference image"]
     eye_cords = detect_eyes(image) #the two inner corners of the eyes
@@ -227,6 +227,28 @@ def tef_good(image): #input read(frames) of the pic
     if not tef_cords or type(tef_cords) is not list:
         return [False,"No tefillin detected"]
     teffilin_point = [((tef_cords[0][0] + tef_cords[2][0]) / 2), tef_cords[1][1]] #lowest point of box (y), in the middle (x)
+
+#delete after done debugging
+    if debug:
+        img_copy = image.copy()
+        # Draw tefillin box corners (blue)
+        for pt in tef_cords:
+            cv2.circle(img_copy, (int(pt[0]), int(pt[1])), 5, (255, 0, 0), -1)
+        # Draw teffilin_point (center bottom of box, cyan)
+        cv2.circle(img_copy, (int(teffilin_point[0]), int(teffilin_point[1])), 7, (255, 255, 0), -1)
+        # Draw eye points (green)
+        for pt in eye_cords:
+            cv2.circle(img_copy, (int(pt[1]), int(pt[2])), 7, (0, 255, 0), -1)
+        # Draw hairline as a horizontal line (red)
+        cv2.line(img_copy, (0, int(hairline_point)), (img_copy.shape[1], int(hairline_point)), (0, 0, 255), 2)
+        chin_nose = face_features(image)
+        if chin_nose and chin_nose[0] and chin_nose[1]:
+            cv2.circle(img_copy, (int(chin_nose[0][1]), int(chin_nose[0][2])), 7, (255, 0, 255), -1) # Chin (magenta)
+            cv2.circle(img_copy, (int(chin_nose[1][1]), int(chin_nose[1][2])), 7, (0, 255, 255), -1) # Nose (yellow)
+        cv2.imshow("Debug Tefillin Placement", img_copy)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+#end of deletion
 
     if teffilin_point[0] < eye_cords[0][1]:
         return [False, "Too far left"]
