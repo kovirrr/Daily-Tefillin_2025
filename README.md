@@ -45,6 +45,40 @@ cmd+shift+p --> select interpreter --> .venv
 ### TO-DO
 
 improve head positioning code. Apparently it just assumes
+Copilots plan:
+how to improve the head pose detection using all facial landmarks:
+
+Why This Is Necessary
+Current implementation only uses 6 points, making it sensitive to individual landmark errors
+Ignores valuable depth information from face contours and features
+Assumes no lens distortion, which isn't realistic
+Doesn't account for landmark confidence/reliability
+Implementation Plan
+Step 1: Create Better 3D Model
+
+Map MediaPipe's 468 landmarks to corresponding 3D coordinates
+Focus on stable facial features:
+Nose bridge (points 168-197)
+Eye contours (points 33-246, 263-466)
+Jawline (points 152-164)
+Cheek structure (points 425-445)
+Step 2: Weight System
+
+Assign confidence weights to landmarks based on:
+Stability (nose bridge highest, lips lowest)
+Visibility (based on head orientation)
+Detection confidence scores
+Step 3: Improved PnP Solving
+
+Filter landmarks based on confidence
+Use RANSAC solver with weighted points
+Add basic lens distortion correction
+Implement iterative refinement
+Step 4: Validation & Smoothing
+
+Add temporal smoothing between frames
+Validate results against anatomically possible ranges
+Fall back to simpler model if full solution fails
 
 MAYBE: add a warning function for reference photos (only) if their yaw value is too far left or right
 Turn into functional API
