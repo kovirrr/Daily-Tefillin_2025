@@ -159,14 +159,18 @@ def detect_head_pose(image):
 
     return euler_angles #returns a list of 3 lists
 
-def compare_poses(current_pose, reference_pose, threshold=4.0): #4 is best
-    pitch_diff = current_pose[0][0] - reference_pose[0][0] #left + right
-    yaw_diff = current_pose[1][0] - reference_pose[1][0]
-    roll_diff = current_pose[2][0] - reference_pose[2][0]
+def angle_difference(current_angle, reference_angle):
+    return (current_angle - reference_angle + 180) % 360 - 180 #shortest distance between 2 angle (always less than 180 now)
+
+
+def compare_poses(current_pose, reference_pose, threshold=4.0):
+    pitch_diff = angle_difference(current_pose[0][0], reference_pose[0][0])
+    yaw_diff = angle_difference(current_pose[1][0], reference_pose[1][0])
+    roll_diff = angle_difference(current_pose[2][0], reference_pose[2][0])
     
     guidance = []
     if abs(pitch_diff) > threshold:
-        guidance.append(("Turn " + ("right" if pitch_diff > 0 else "left"), abs(pitch_diff)))
+        guidance.append(("Look " + ("down" if pitch_diff > 0 else "up"), abs(pitch_diff)))
     if abs(roll_diff) > threshold:
         guidance.append(("Tilt head " + ("left" if roll_diff > 0 else "right"), abs(roll_diff)))
     
@@ -174,7 +178,7 @@ def compare_poses(current_pose, reference_pose, threshold=4.0): #4 is best
     guidance.sort(key=lambda x: x[1], reverse=True)
     
     if abs(yaw_diff) > threshold: #most important, that's why insert
-        guidance.insert(0, ("Turn " + ("down" if yaw_diff > 0 else "up"), abs(yaw_diff)))
+        guidance.insert(0, ("Turn " + ("right" if yaw_diff > 0 else "left"), abs(yaw_diff)))
 
     return guidance
 

@@ -1,47 +1,90 @@
-import { React, useState } from 'react';
-import { View, Text, Button } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import Faq_page from './components/faq_page/faq_page';
-import Streak_page from './components/streak_page/streak_page';
+import FaqPage from './components/faq_page/faq_page';
+import StreakPage from './components/streak_page/streak_page';
+import styles from './styles/appStyles';
+
+const tabs = [
+  { key: 'streak', label: 'Streak' },
+  { key: 'home', label: 'Home' },
+  { key: 'faq', label: 'FAQ' },
+];
 
 function App() {
-  const pages = ['faq_page', 'main_page', 'streak_page'];
-  const [curPage, setCurPage] = useState(pages[1]);
-  if (curPage === pages[0]) {
-    return <Faq_page onNavigateHome={() => setCurPage(pages[1])} />;
-  } else if (curPage === pages[2]) {
-    return <Streak_page onNavigateHome={() => setCurPage(pages[1])} />;
-  } else if (curPage === pages[1]) {
-    return (
-      <SafeAreaProvider>
-        <SafeAreaView>
-          <View>
-            <Text>Daily Tefillin</Text>
-          </View>
-          <View>
-            <Button
-              title="FAQ Page"
-              onPress={() => setCurPage(pages[0])}
-              color="red"
-            />
-          </View>
-          <View>
-            <Button
-              title="Streak Page"
-              onPress={() => setCurPage(pages[2])}
-              color="green"
-            />
-          </View>
-        </SafeAreaView>
-      </SafeAreaProvider>
-    );
+  const [activeTab, setActiveTab] = useState('home');
+  const [navigationUnlocked, setNavigationUnlocked] = useState(false);
+
+  let screen;
+  if (activeTab === 'faq') {
+    screen = <FaqPage />;
+  } else if (activeTab === 'streak') {
+    screen = <StreakPage />;
   } else {
-    return (
-      <View>
-        <Text>Page Not found</Text>
+    screen = (
+      <View style={styles.screen}>
+        <View style={styles.homeContent}>
+          <Text style={styles.screenTitle}>Daily Tefillin</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              navigationUnlocked ? 'Navigation unlocked' : 'Get started'
+            }
+            disabled={navigationUnlocked}
+            onPress={() => setNavigationUnlocked(true)}
+            style={[
+              styles.primaryButton,
+              navigationUnlocked && styles.primaryButtonDisabled,
+            ]}
+          >
+            <Text style={styles.primaryButtonLabel}>
+              {navigationUnlocked ? 'Ready to go' : 'Get started'}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
+
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.app} edges={['top', 'bottom']}>
+        <View style={styles.screenContainer}>{screen}</View>
+        <View style={styles.bottomNav} accessibilityRole="tablist">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key;
+            const isLocked = tab.key !== 'home' && !navigationUnlocked;
+
+            return (
+              <Pressable
+                key={tab.key}
+                accessibilityLabel={tab.label}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive, disabled: isLocked }}
+                disabled={isLocked}
+                onPress={() => setActiveTab(tab.key)}
+                style={[
+                  styles.navButton,
+                  isActive && styles.navButtonActive,
+                  isLocked && styles.navButtonLocked,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.navLabel,
+                    isActive && styles.navLabelActive,
+                    isLocked && styles.navLabelLocked,
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
 }
 
 export default App;

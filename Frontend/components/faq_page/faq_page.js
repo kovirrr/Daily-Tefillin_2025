@@ -1,19 +1,13 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View } from 'react-native';
+import styles from '../../styles/appStyles';
 
-const Faq_page = ({ onNavigateHome }) => {
+const FaqPage = () => {
   return (
-    <SafeAreaProvider>
-      <SafeAreaView>
-        <View>
-          <Text>FAQ</Text>
-        </View>
-        <View>
-          <Button title="Back" onPress={onNavigateHome} />
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <View style={styles.screen}>
+      <Text style={styles.screenTitle}>FAQ</Text>
+    </View>
   );
 };
-export default Faq_page;
+
+export default FaqPage;
