@@ -38,6 +38,15 @@ source .venv311/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 
+Run the placement-logic unit tests from the project root:
+
+```sh
+python -m unittest discover -s API/tests -v
+```
+
+These tests stub image detectors and verify decision logic; they do not test the
+trained models, camera capture, or running the analysis on a phone.
+
 You may need to select intrepreter to the venv:
 cmd+shift+p --> select interpreter --> .venv
 

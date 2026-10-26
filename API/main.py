@@ -7,6 +7,7 @@ import detection_code as LM #local file
 
 #========== VARIABLES =============
 face_detector = LM.Face()#detects face with variables 
+initialized = False
 
 
 #========== FUNCTIONS =============
