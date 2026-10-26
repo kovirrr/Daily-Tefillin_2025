@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
@@ -22,6 +23,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeFactory = factory
 
     window = UIWindow(frame: UIScreen.main.bounds)
+
+    if ProcessInfo.processInfo.arguments.contains("--coreml-benchmark") {
+      if #available(iOS 16.0, *) {
+        window?.rootViewController = UIHostingController(rootView: CoreMLBenchmarkView())
+        window?.makeKeyAndVisible()
+        return true
+      }
+    }
 
     factory.startReactNative(
       withModuleName: "Frontend",

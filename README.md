@@ -47,6 +47,27 @@ python -m unittest discover -s API/tests -v
 These tests stub image detectors and verify decision logic; they do not test the
 trained models, camera capture, or running the analysis on a phone.
 
+### iPhone local-model feasibility test
+
+The iOS-only benchmark exports the current hairline and train6 tefillin
+checkpoints to Core ML and runs them on-device. It does not port `tef_good()`.
+
+1. Activate `.venv311`, install Core ML Tools with
+   `python -m pip install coremltools==9.0`, and run
+   `python API/mobile_test/export_coreml.py`.
+2. In Xcode, open `Frontend/ios/Frontend.xcworkspace`, select your iPhone, and
+   add `--coreml-benchmark` under **Product > Scheme > Edit Scheme > Run >
+   Arguments Passed On Launch**.
+3. Run the app, choose a photo already on the phone, enable Airplane Mode, and
+   tap **Run both models**. Repeat with varied photos and check that the green
+   box follows the tefillin.
+
+The report gives model inference timings and compiled model size. A confidence
+score is not an accuracy measurement; verify detections on varied labeled
+photos. Hairline output is reported but not rendered as a mask. The benchmark
+does not include MediaPipe face landmarks or the full `tef_good()` check.
+Remove the launch argument to return to the normal app.
+
 You may need to select intrepreter to the venv:
 cmd+shift+p --> select interpreter --> .venv
 
