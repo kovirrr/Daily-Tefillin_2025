@@ -1,13 +1,13 @@
 import { StyleSheet } from 'react-native';
 
-const colors = {
+export const colors = {
+  primary: '#ef0000',
+  secondary: '#6B7280',
+  accent: '#EAF1FF',
   background: '#F7F8FA',
   surface: '#FFFFFF',
   border: '#E5E7EB',
   text: '#172033',
-  mutedText: '#6B7280',
-  accent: '#2563EB',
-  accentLight: '#EAF1FF',
 };
 
 const styles = StyleSheet.create({
@@ -40,10 +40,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
   },
   primaryButtonDisabled: {
-    backgroundColor: colors.mutedText,
+    backgroundColor: colors.secondary,
   },
   primaryButtonLabel: {
     color: colors.surface,
@@ -69,21 +69,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   navButtonActive: {
-    backgroundColor: colors.accentLight,
+    backgroundColor: colors.accent,
   },
   navButtonLocked: {
     opacity: 0.45,
   },
   navLabel: {
-    color: colors.mutedText,
+    color: colors.secondary,
     fontSize: 14,
     fontWeight: '600',
   },
   navLabelActive: {
-    color: colors.accent,
+    color: colors.primary,
   },
   navLabelLocked: {
-    color: colors.mutedText,
+    color: colors.secondary,
   },
 });
 

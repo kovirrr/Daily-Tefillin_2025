@@ -17,7 +17,6 @@ Premium (added features):
 1: there will be a “group” section that, if you pay for premium, you will be able to create one. You can add people (even those without premium) into a group and it shows the leader of the group who wore tefillin on what day. (like attendance)
 2: When your tefillin is not on correctly the app will tell you how to fix it so that it is.
 3: an optional halacha of the day
-4: it will tell you how to fix the tefillin's position when off
 
 {streak is public unless you have premium (optional then)}
 {achievements like duolingo}
