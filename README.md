@@ -47,6 +47,23 @@ python -m unittest discover -s API/tests -v
 These tests stub image detectors and verify decision logic; they do not test the
 trained models, camera capture, or running the analysis on a phone.
 
+### Using the iPhone test branch
+
+Fetch and switch to the test branch from the project root:
+
+```sh
+git fetch origin
+git switch test/phone-main
+git pull
+```
+
+Open `Frontend/ios/Frontend.xcworkspace` in Xcode, select your iPhone, and run
+the `Frontend` scheme. To open the model benchmark instead of the regular app,
+add `--coreml-benchmark` under **Product > Scheme > Edit Scheme > Run >
+Arguments Passed On Launch**. Remove that argument to return to the regular
+app. The branch includes this developer's Xcode signing settings; other
+developers may need to select their own signing team in Xcode.
+
 ### iPhone local-model feasibility test
 
 The iOS-only benchmark exports the current hairline and train6 tefillin
